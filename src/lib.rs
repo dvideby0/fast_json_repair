@@ -324,8 +324,10 @@ impl Parser {
             }
             Token::Number(n) => {
                 let val = n.parse::<f64>()
-                    .map(|f| serde_json::Value::Number(serde_json::Number::from_f64(f).unwrap_or(serde_json::Number::from(0))))
-                    .unwrap_or(serde_json::Value::Number(serde_json::Number::from(0)));
+                    .ok()
+                    .and_then(serde_json::Number::from_f64)
+                    .map(serde_json::Value::Number)
+                    .unwrap_or(serde_json::Value::Null);
                 self.advance();
                 Ok(val)
             }
@@ -546,9 +548,7 @@ fn format_json_value(value: &serde_json::Value, ensure_ascii: bool, indent: usiz
                 result.push('}');
                 result
             } else {
-                let mut items: Vec<_> = obj.iter().collect();
-                items.sort_by_key(|(k, _)| k.as_str());
-                let pairs: Vec<String> = items.iter()
+                let pairs: Vec<String> = obj.iter()
                     .map(|(k, v)| format!("\"{}\":{}", 
                         escape_string_for_json(k, ensure_ascii),
                         format_json_value(v, ensure_ascii, 0, 0)))
@@ -560,21 +560,24 @@ fn format_json_value(value: &serde_json::Value, ensure_ascii: bool, indent: usiz
 }
 
 #[pyfunction]
-fn _repair_json_rust(json_string: &str, ensure_ascii: bool, indent: usize) -> PyResult<String> {
-    // Try to parse and repair the JSON
-    let mut parser = Parser::new(json_string);
-    
-    match parser.parse() {
-        Ok(value) => {
-            // Format the repaired JSON
-            let formatted = format_json_value(&value, ensure_ascii, indent, 0);
-            Ok(formatted)
+fn _repair_json_rust(py: Python<'_>, json_string: &str, ensure_ascii: bool, indent: usize) -> PyResult<String> {
+    // Release the GIL while parsing and formatting
+    py.allow_threads(|| {
+        // Try to parse and repair the JSON
+        let mut parser = Parser::new(json_string);
+        
+        match parser.parse() {
+            Ok(value) => {
+                // Format the repaired JSON
+                let formatted = format_json_value(&value, ensure_ascii, indent, 0);
+                Ok(formatted)
+            }
+            Err(_) => {
+                // If parsing completely fails, return null
+                Ok("null".to_string())
+            }
         }
-        Err(_) => {
-            // If parsing completely fails, return null
-            Ok("null".to_string())
-        }
-    }
+    })
 }
 
 #[pymodule]

@@ -1,10 +1,11 @@
 """Fast JSON repair library using Rust for performance."""
 
 from typing import Any, Optional, Union
+import json as _json
 import orjson
 from fast_json_repair._fast_json_repair import _repair_json_rust
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __all__ = ["repair_json", "loads"]
 
 
@@ -45,13 +46,15 @@ def repair_json(
             parsed = orjson.loads(json_string)
             if return_objects:
                 return parsed
-            # Re-serialize with requested formatting
-            opts = orjson.OPT_SORT_KEYS
-            if indent == 2:
-                opts |= orjson.OPT_INDENT_2
-            if not ensure_ascii:
-                opts |= orjson.OPT_NON_STR_KEYS
-            return orjson.dumps(parsed, option=opts).decode('utf-8')
+            # Decide serializer:
+            # - orjson for fast path only when (not ensure_ascii) and (indent is None or 2)
+            if not ensure_ascii and (indent is None or indent == 2):
+                opts = 0
+                if indent == 2:
+                    opts |= orjson.OPT_INDENT_2
+                return orjson.dumps(parsed, option=opts).decode('utf-8')
+            # Fallback to stdlib json to respect ensure_ascii and arbitrary indent
+            return _json.dumps(parsed, ensure_ascii=ensure_ascii, indent=indent)
         except (orjson.JSONDecodeError, TypeError):
             pass  # Fall through to repair logic
     

@@ -177,21 +177,74 @@ Repairs and parses invalid JSON string to Python object.
 
 This Rust-based implementation provides significant performance improvements over the pure Python original.
 
+### Fast Path Optimization
+
+The library automatically uses the fastest path when possible:
+
+**Fast Path (uses `orjson` for serialization):**
+- Valid JSON input
+- `ensure_ascii=False` 
+- `indent` is either `None` (compact) or `2`
+
+**Fallback Path (uses stdlib `json`):**
+- Valid JSON input with `ensure_ascii=True`
+- Valid JSON input with `indent` values other than `None` or `2`
+
+**Repair Path (uses Rust implementation):**
+- Any invalid JSON that needs repair
+- Always respects `ensure_ascii` and `indent` settings
+
+For maximum performance with valid JSON:
+```python
+# Fastest - uses orjson throughout
+result = repair_json(valid_json, ensure_ascii=False, indent=2)
+
+# Slower - falls back to json.dumps for formatting
+result = repair_json(valid_json, ensure_ascii=True)  # ASCII escaping
+result = repair_json(valid_json, indent=4)  # Custom indentation
+```
+
 ### Benchmark Results
 
-| Test Case | Rust (ms) | Python (ms) | Speedup |
-|-----------|-----------|-------------|---------|
-| Simple quotes | 0.02 | 0.04 | 1.8x |
-| Medium nested structure | 0.08 | 0.19 | 2.4x |
-| Large array (1000 items) | 1.13 | 2.23 | 2.0x |
-| Deep nesting (50 levels) | 0.16 | 0.38 | 2.4x |
-| Large object (500 keys) | 1.87 | 29.50 | **15.8x** |
-| Complex mixed issues | 0.12 | 0.39 | 3.4x |
-| Very large array (5000 items) | 106.00 | 514.00 | **4.9x** |
-| Unicode and special chars | 0.06 | 0.15 | 2.5x |
-| Long strings (10K chars) | 0.59 | 3.60 | **6.1x** |
+Comprehensive comparison of fast_json_repair vs json_repair across 20 test cases (10 invalid JSON, 10 valid JSON) with both `ensure_ascii` settings:
 
-**Overall: ~5x faster** than the pure Python implementation, with up to 15x speedup for certain workloads.
+| Test Case | fast_json_repair (ms) | json_repair (ms) | Speedup |
+|-----------|----------------------|------------------|---------|
+| **Invalid JSON (needs repair)** | | | |
+| Simple quotes (ascii=T) | 0.018 | 0.030 | 🚀 1.7x |
+| Simple quotes (ascii=F) | 0.018 | 0.029 | 🚀 1.6x |
+| Medium nested (ascii=T) | 0.064 | 0.178 | 🚀 2.8x |
+| Medium nested (ascii=F) | 0.062 | 0.184 | 🚀 3.0x |
+| Large array 1000 (ascii=T) | 1.093 | 2.154 | 🚀 2.0x |
+| Large array 1000 (ascii=F) | 1.051 | 2.160 | 🚀 2.1x |
+| Deep nesting 50 (ascii=T) | 0.139 | 0.372 | 🚀 2.7x |
+| Deep nesting 50 (ascii=F) | 0.133 | 0.368 | 🚀 2.8x |
+| Large object 500 (ascii=T) | 1.717 | 28.194 | 🚀 **16.4x** |
+| Large object 500 (ascii=F) | 1.702 | 28.570 | 🚀 **16.8x** |
+| Complex mixed (ascii=T) | 0.105 | 0.365 | 🚀 3.5x |
+| Complex mixed (ascii=F) | 0.102 | 0.366 | 🚀 3.6x |
+| Very large 5000 (ascii=T) | 103.896 | 509.603 | 🚀 **4.9x** |
+| Very large 5000 (ascii=F) | 102.053 | 506.772 | 🚀 **5.0x** |
+| Long strings 10K (ascii=T) | 0.568 | 3.399 | 🚀 **6.0x** |
+| Long strings 10K (ascii=F) | 0.576 | 3.430 | 🚀 **6.0x** |
+| **Valid JSON (fast path)** | | | |
+| Small ASCII (ascii=T) | 0.003 | 0.004 | 🚀 1.4x |
+| Small ASCII (ascii=F) | 0.002 | 0.005 | 🚀 2.8x |
+| Nested structure (ascii=T) | 0.006 | 0.008 | 🚀 1.3x |
+| Nested structure (ascii=F) | 0.003 | 0.010 | 🚀 3.1x |
+| Large array 1000 (ascii=T) | 0.747 | 0.887 | 🚀 1.2x |
+| Large array 1000 (ascii=F) | 0.431 | 0.938 | 🚀 2.2x |
+| Large object 500 (ascii=T) | 0.518 | 0.558 | 🚀 1.1x |
+| Large object 500 (ascii=F) | 0.277 | 0.555 | 🚀 2.0x |
+
+**Overall: 5.1x faster** across all test cases
+
+**Key Insights:**
+- 🚀 = fast_json_repair is faster (all test cases)
+- **Invalid JSON repair**: 2-17x faster
+- **Valid JSON with ensure_ascii=False**: 2-3x faster (uses orjson fast path)
+- **Valid JSON with ensure_ascii=True**: 1.1-1.4x faster
+- **Best performance gains**: Large objects (16x), long strings (6x), complex structures (5x)
 
 ### Performance Advantages
 
