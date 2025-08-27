@@ -48,16 +48,7 @@ impl Lexer {
         }
     }
     
-    fn peek(&self, offset: usize) -> Option<char> {
-        let pos = self.position + offset;
-        if pos < self.input.len() {
-            Some(self.input[pos])
-        } else {
-            None
-        }
-    }
-    
-    fn skip_whitespace(&mut self) {
+d    fn skip_whitespace(&mut self) {
         while let Some(ch) = self.current_char {
             if ch.is_whitespace() {
                 self.advance();
@@ -316,10 +307,6 @@ impl Parser {
     
     fn advance(&mut self) {
         self.current_token = self.tokens.pop_front().unwrap_or(Token::EOF);
-    }
-    
-    fn peek(&self) -> &Token {
-        self.tokens.front().unwrap_or(&Token::EOF)
     }
     
     fn parse(&mut self) -> Result<serde_json::Value, String> {
