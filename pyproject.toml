@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "High-performance JSON repair library using Rust"
 readme = "README.md"
 license = {text = "MIT"}
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+authors = [{name = "dvideby0", email = ""}]
 keywords = ["json", "repair", "parser", "rust", "performance", "llm", "ai"]
 requires-python = ">=3.11"
 classifiers = [
@@ -29,10 +29,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/fast_json_repair"
-Documentation = "https://github.com/yourusername/fast_json_repair#readme"
-Repository = "https://github.com/yourusername/fast_json_repair"
-Issues = "https://github.com/yourusername/fast_json_repair/issues"
+Homepage = "https://github.com/dvideby0/fast_json_repair"
+Documentation = "https://github.com/dvideby0/fast_json_repair#readme"
+Repository = "https://github.com/dvideby0/fast_json_repair"
+Issues = "https://github.com/dvideby0/fast_json_repair/issues"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

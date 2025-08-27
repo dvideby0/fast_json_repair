@@ -57,7 +57,7 @@ pip install maturin orjson
 
 ```bash
 # Clone your repository
-git clone https://github.com/yourusername/fast_json_repair.git
+git clone https://github.com/dvideby0/fast_json_repair.git
 cd fast_json_repair
 
 # Build and install

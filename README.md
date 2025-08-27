@@ -60,23 +60,23 @@ pip install fast-json-repair
 
 ### Install from GitHub Releases
 
-Download pre-built wheels from the [Releases page](https://github.com/yourusername/fast_json_repair/releases):
+Download pre-built wheels from the [Releases page](https://github.com/dvideby0/fast_json_repair/releases):
 
 ```bash
 # For macOS (Intel)
-pip install https://github.com/yourusername/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_10_12_x86_64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_10_12_x86_64.whl
 
 # For macOS (Apple Silicon)  
-pip install https://github.com/yourusername/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_11_0_arm64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_11_0_arm64.whl
 
 # For Linux x86_64
-pip install https://github.com/yourusername/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_x86_64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_x86_64.whl
 
 # For Linux ARM64 (AWS Graviton)
-pip install https://github.com/yourusername/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_aarch64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_aarch64.whl
 
 # For Windows
-pip install https://github.com/yourusername/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-win_amd64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-win_amd64.whl
 ```
 
 ### Build from Source
@@ -92,7 +92,7 @@ pip install https://github.com/yourusername/fast_json_repair/releases/download/v
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/fast_json_repair.git
+git clone https://github.com/dvideby0/fast_json_repair.git
 cd fast_json_repair
 
 # Create a virtual environment (recommended)
