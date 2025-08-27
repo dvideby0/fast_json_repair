@@ -48,7 +48,7 @@ impl Lexer {
         }
     }
     
-d    fn skip_whitespace(&mut self) {
+    fn skip_whitespace(&mut self) {
         while let Some(ch) = self.current_char {
             if ch.is_whitespace() {
                 self.advance();
