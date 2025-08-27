@@ -4,7 +4,7 @@ from typing import Any, Optional, Union
 import orjson
 from fast_json_repair._fast_json_repair import _repair_json_rust
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 __all__ = ["repair_json", "loads"]
 
 

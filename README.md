@@ -1,5 +1,9 @@
 # fast_json_repair
 
+[![PyPI version](https://badge.fury.io/py/fast-json-repair.svg)](https://pypi.org/project/fast-json-repair/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A high-performance JSON repair library for Python, powered by Rust. This is a drop-in replacement for [json_repair](https://github.com/mangiucugna/json_repair) with significant performance improvements.
 
 ## 🙏 Attribution
@@ -12,10 +16,11 @@ If you find this library useful, please also consider starring the [original jso
 
 ## Features
 
+- 📦 **Available on PyPI**: `pip install fast-json-repair`
 - 🚀 **Rust Performance**: Core repair logic implemented in Rust for maximum speed
 - 🔧 **Automatic Repair**: Fixes common JSON errors automatically
 - 🐍 **Python Compatible**: Works with Python 3.11+
-- 📦 **Drop-in Replacement**: Compatible API with the original json_repair library
+- 🔄 **Drop-in Replacement**: Compatible API with the original json_repair library
 - ⚡ **Fast JSON Parsing**: Uses orjson for JSON parsing operations
 
 ## Compatibility with Original json_repair
@@ -50,9 +55,7 @@ If you find this library useful, please also consider starring the [original jso
 
 ## Installation
 
-### Quick Install (Coming Soon)
-
-Once published to PyPI, you'll be able to install with:
+### Quick Install
 
 ```bash
 pip install fast-json-repair
@@ -64,19 +67,19 @@ Download pre-built wheels from the [Releases page](https://github.com/dvideby0/f
 
 ```bash
 # For macOS (Intel)
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_10_12_x86_64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-macosx_10_12_x86_64.whl
 
 # For macOS (Apple Silicon)  
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-macosx_11_0_arm64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-macosx_11_0_arm64.whl
 
 # For Linux x86_64
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_x86_64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-manylinux_2_17_x86_64.whl
 
 # For Linux ARM64 (AWS Graviton)
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_aarch64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-manylinux_2_17_aarch64.whl
 
 # For Windows
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.0/fast_json_repair-0.1.0-cp311-abi3-win_amd64.whl
+pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-win_amd64.whl
 ```
 
 ### Build from Source
@@ -215,11 +218,12 @@ This library works perfectly on AWS Linux systems. Pre-built wheels are availabl
 ### Quick Deploy to AWS
 
 ```bash
-# For x86_64 instances
-pip install target/wheels/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl orjson
+# Simply install from PyPI (works on all architectures)
+pip install fast-json-repair
 
-# For ARM64/Graviton instances
-pip install target/wheels/fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl orjson
+# The correct wheel for your architecture will be automatically selected:
+# - x86_64 instances: manylinux_2_17_x86_64 wheel
+# - ARM64/Graviton instances: manylinux_2_17_aarch64 wheel
 ```
 
 ### Building Linux Wheels (Cross-compilation from macOS)
