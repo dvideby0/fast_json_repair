@@ -1,0 +1,40 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "fast_json_repair"
+version = "0.1.0"
+description = "High-performance JSON repair library using Rust"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+keywords = ["json", "repair", "parser", "rust", "performance", "llm", "ai"]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "orjson>=3.10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/fast_json_repair"
+Documentation = "https://github.com/yourusername/fast_json_repair#readme"
+Repository = "https://github.com/yourusername/fast_json_repair"
+Issues = "https://github.com/yourusername/fast_json_repair/issues"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "fast_json_repair._fast_json_repair"

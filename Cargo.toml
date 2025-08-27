@@ -1,0 +1,18 @@
+[package]
+name = "fast_json_repair"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "fast_json_repair"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py311"] }
+serde_json = "1.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
