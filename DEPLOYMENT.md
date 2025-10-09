@@ -4,7 +4,7 @@ This guide explains how to deploy `fast_json_repair` to AWS Linux systems.
 
 ## Prerequisites
 
-- Python 3.11+ on your AWS instance
+- Python 3.11 or newer (tested through 3.14) on your AWS instance
 - pip installed
 
 ## Option 1: Build Linux Wheel Locally (Recommended)
@@ -75,7 +75,7 @@ git push origin v0.1.0
 ```
 
 2. Download the Linux wheel from GitHub Releases
-3. Install on AWS:
+3. Install on AWS (the `cp311-abi3` wheel works for Python 3.11 through 3.14):
 ```bash
 pip install fast_json_repair-0.1.0-cp311-abi3-manylinux_2_17_x86_64.whl orjson
 ```
@@ -100,6 +100,7 @@ pip install -r requirements.txt
 For containerized deployments, add to your Dockerfile:
 
 ```dockerfile
+# Choose any CPython image between 3.11 and 3.14
 FROM python:3.11-slim
 
 # Install build dependencies (only needed if building from source)
@@ -160,7 +161,7 @@ print(f"Repaired: {fixed}")
 
 ### "No module named 'fast_json_repair._fast_json_repair'"
 - Ensure you're using the correct wheel for your architecture
-- Check Python version compatibility (requires 3.11+)
+- Check Python version compatibility (requires Python 3.11 or newer)
 
 ### "GLIBC version not found"
 - Use manylinux2014 wheels for better compatibility

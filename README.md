@@ -1,7 +1,7 @@
 # fast_json_repair
 
 [![PyPI version](https://badge.fury.io/py/fast-json-repair.svg)](https://pypi.org/project/fast-json-repair/)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11–3.14](https://img.shields.io/badge/python-3.11--3.14-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A high-performance JSON repair library for Python, powered by Rust. This is a drop-in replacement for [json_repair](https://github.com/mangiucugna/json_repair) with significant performance improvements.
@@ -19,7 +19,7 @@ If you find this library useful, please also consider starring the [original jso
 - 📦 **Available on PyPI**: `pip install fast-json-repair`
 - 🚀 **Rust Performance**: Core repair logic implemented in Rust for maximum speed
 - 🔧 **Automatic Repair**: Fixes common JSON errors automatically
-- 🐍 **Python Compatible**: Works with Python 3.11+
+- 🐍 **Python Compatible**: Works with Python 3.11–3.14 (thanks to stable ABI support)
 - 🔄 **Drop-in Replacement**: Compatible API with the original json_repair library
 - ⚡ **Fast JSON Parsing**: Uses orjson for JSON parsing operations
 
@@ -88,7 +88,7 @@ pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.
 <summary>Click to expand build instructions</summary>
 
 #### Prerequisites
-- Python 3.11 or higher
+- Python 3.11 or newer (validated through 3.14)
 - Rust toolchain (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`)
 
 #### Build Steps
