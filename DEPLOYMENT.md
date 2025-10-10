@@ -62,6 +62,9 @@ cd fast_json_repair
 
 # Build and install
 maturin develop --release
+
+# (Optional) run the test suite before deploying
+pytest
 ```
 
 ## Option 3: Use Pre-built Wheels from CI/CD

@@ -102,11 +102,14 @@ cd fast_json_repair
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install build dependencies
-pip install maturin orjson
+# Install build dependencies and test tools
+pip install maturin orjson pytest
 
 # Build and install the package
 maturin develop --release
+
+# (Optional) run the test suite
+pytest
 ```
 
 </details>
