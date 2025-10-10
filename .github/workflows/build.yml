@@ -18,6 +18,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
       - name: Install dependencies
         run: |
           pip install --upgrade pip
