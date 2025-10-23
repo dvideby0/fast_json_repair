@@ -1,3 +1,5 @@
+// OPTIMIZED VERSION - Review these changes before applying
+
 use pyo3::prelude::*;
 use std::collections::VecDeque;
 
@@ -26,11 +28,7 @@ struct Lexer {
 impl Lexer {
     fn new(input: &str) -> Self {
         let chars: Vec<char> = input.chars().collect();
-        let current_char = if chars.is_empty() {
-            None
-        } else {
-            Some(chars[0])
-        };
+        let current_char = chars.first().copied();
         
         Lexer {
             input: chars,
@@ -39,13 +37,10 @@ impl Lexer {
         }
     }
     
+    #[inline]
     fn advance(&mut self) {
         self.position += 1;
-        if self.position < self.input.len() {
-            self.current_char = Some(self.input[self.position]);
-        } else {
-            self.current_char = None;
-        }
+        self.current_char = self.input.get(self.position).copied();
     }
     
     fn skip_whitespace(&mut self) {
@@ -59,7 +54,8 @@ impl Lexer {
     }
     
     fn read_string(&mut self, quote_char: char) -> String {
-        let mut result = String::new();
+        // Estimate capacity based on common string sizes
+        let mut result = String::with_capacity(64);
         self.advance(); // Skip opening quote
         
         while let Some(ch) = self.current_char {
@@ -82,7 +78,7 @@ impl Lexer {
                         'u' => {
                             // Handle unicode escape
                             self.advance();
-                            let mut hex = String::new();
+                            let mut hex = String::with_capacity(4);
                             for _ in 0..4 {
                                 if let Some(h) = self.current_char {
                                     if h.is_ascii_hexdigit() {
@@ -134,7 +130,7 @@ impl Lexer {
     }
     
     fn read_unquoted_string(&mut self) -> String {
-        let mut result = String::new();
+        let mut result = String::with_capacity(32);
         
         while let Some(ch) = self.current_char {
             if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '.' || ch == '$' {
@@ -152,7 +148,7 @@ impl Lexer {
     }
     
     fn read_number(&mut self) -> String {
-        let mut result = String::new();
+        let mut result = String::with_capacity(16);
         
         // Handle negative numbers
         if self.current_char == Some('-') {
@@ -305,6 +301,7 @@ impl Parser {
         }
     }
     
+    #[inline]
     fn advance(&mut self) {
         self.current_token = self.tokens.pop_front().unwrap_or(Token::EOF);
     }
@@ -464,8 +461,10 @@ impl Parser {
     }
 }
 
+#[inline]
 fn escape_string_for_json(s: &str, ensure_ascii: bool) -> String {
-    let mut result = String::new();
+    // Estimate capacity: most strings don't need escaping
+    let mut result = String::with_capacity(s.len() + s.len() / 10);
     
     for ch in s.chars() {
         match ch {
@@ -505,7 +504,9 @@ fn format_json_value(value: &serde_json::Value, ensure_ascii: bool, indent: usiz
             if arr.is_empty() {
                 "[]".to_string()
             } else if indent > 0 {
-                let mut result = "[\n".to_string();
+                // Estimate capacity for formatted output
+                let mut result = String::with_capacity(arr.len() * 20);
+                result.push_str("[\n");
                 let inner_indent = current_indent + indent;
                 for (i, item) in arr.iter().enumerate() {
                     result.push_str(&" ".repeat(inner_indent));
@@ -529,10 +530,13 @@ fn format_json_value(value: &serde_json::Value, ensure_ascii: bool, indent: usiz
             if obj.is_empty() {
                 "{}".to_string()
             } else if indent > 0 {
-                let mut result = "{\n".to_string();
+                // Estimate capacity
+                let mut result = String::with_capacity(obj.len() * 40);
+                result.push_str("{\n");
                 let inner_indent = current_indent + indent;
-                let mut items: Vec<_> = obj.iter().collect();
-                items.sort_by_key(|(k, _)| k.as_str());
+                
+                // Preserve insertion order (matches original json_repair behavior)
+                let items: Vec<_> = obj.iter().collect();
                 
                 for (i, (key, value)) in items.iter().enumerate() {
                     result.push_str(&" ".repeat(inner_indent));
@@ -562,7 +566,7 @@ fn format_json_value(value: &serde_json::Value, ensure_ascii: bool, indent: usiz
 #[pyfunction]
 fn _repair_json_rust(py: Python<'_>, json_string: &str, ensure_ascii: bool, indent: usize) -> PyResult<String> {
     // Release the GIL while parsing and formatting
-    py.allow_threads(|| {
+    py.detach(|| {
         // Try to parse and repair the JSON
         let mut parser = Parser::new(json_string);
         

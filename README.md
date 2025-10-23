@@ -25,33 +25,22 @@ If you find this library useful, please also consider starring the [original jso
 
 ## Compatibility with Original json_repair
 
-### ✅ Included Features
-- **`repair_json()`** - Main repair function with all parameters:
-  - `return_objects` - Return parsed Python objects instead of JSON string
-  - `skip_json_loads` - Skip initial JSON validation for better performance  
-  - `ensure_ascii` - Control Unicode escaping in output
-  - `indent` - Format output with indentation
-- **`loads()`** - Convenience function for loading broken JSON directly to Python objects
-- **All repair capabilities**:
-  - Single quotes → double quotes
-  - Unquoted keys → quoted keys
-  - Python literals (True/False/None) → JSON literals (true/false/null)
-  - Trailing commas removal
-  - Missing commas addition
-  - Auto-closing unclosed brackets/braces
-  - Escape sequence handling
-  - Unicode support
+This is a **drop-in replacement** for the original `json_repair` library with the same API:
 
-### ❌ Not Included (By Design)
-- **File operations** (`load()`, `from_file()`) - Use Python's built-in file handling + repair_json()
-- **CLI tool** - This is a library-only implementation
-- **Streaming support** (`stream_stable` parameter) - Not yet implemented
-- **Custom JSON encoder parameters** - Uses orjson's optimized defaults
+**✅ Included:**
+- `repair_json()` - Main repair function with `return_objects`, `skip_json_loads`, `ensure_ascii`, `indent` parameters
+- `loads()` - Convenience function for loading broken JSON directly to Python objects
+- All repair capabilities: quotes, literals, commas, brackets, escape sequences, Unicode
 
-### 🔄 Differences
-- **Number parsing**: Unquoted numbers are parsed as numbers (not strings)
-- **Performance**: 5x faster average, up to 15x for large objects
-- **Dependencies**: Requires `orjson` instead of standard `json` library
+**❌ Not Included:**
+- File operations (`load()`, `from_file()`) - Use Python's built-in file handling + `repair_json()`
+- CLI tool - Library-only implementation
+- Streaming support - Not yet implemented
+
+**Key Differences:**
+- 🚀 **20x faster average**, up to 110x for large objects with long strings
+- 🔢 Unquoted numbers parsed as numbers (not strings)
+- 📦 Uses `orjson` for high-performance JSON operations
 
 ## Installation
 
@@ -59,27 +48,6 @@ If you find this library useful, please also consider starring the [original jso
 
 ```bash
 pip install fast-json-repair
-```
-
-### Install from GitHub Releases
-
-Download pre-built wheels from the [Releases page](https://github.com/dvideby0/fast_json_repair/releases):
-
-```bash
-# For macOS (Intel)
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-macosx_10_12_x86_64.whl
-
-# For macOS (Apple Silicon)  
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-macosx_11_0_arm64.whl
-
-# For Linux x86_64
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-manylinux_2_17_x86_64.whl
-
-# For Linux ARM64 (AWS Graviton)
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-manylinux_2_17_aarch64.whl
-
-# For Windows
-pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.2/fast_json_repair-0.1.2-cp311-abi3-win_amd64.whl
 ```
 
 ### Build from Source
@@ -90,22 +58,43 @@ pip install https://github.com/dvideby0/fast_json_repair/releases/download/v0.1.
 #### Prerequisites
 - Python 3.11-3.14
 - Rust toolchain (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`)
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 
-#### Build Steps
+#### Quick Start with uv (Recommended)
 
 ```bash
 # Clone the repository
 git clone https://github.com/dvideby0/fast_json_repair.git
 cd fast_json_repair
 
-# Create a virtual environment (recommended)
+# Run the automated setup script
+./setup.sh
+```
+
+The setup script will:
+- ✅ Install `uv` and Rust if needed
+- ✅ Create a virtual environment (`.venv`)
+- ✅ Install all dependencies
+- ✅ Build the Rust extension
+- ✅ Verify the installation
+
+#### Manual Build Steps
+
+```bash
+# Clone the repository
+git clone https://github.com/dvideby0/fast_json_repair.git
+cd fast_json_repair
+
+# Option 1: Using uv (fast!)
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv sync
+maturin develop --release
+
+# Option 2: Using pip
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install build dependencies
 pip install maturin orjson
-
-# Build and install the package
 maturin develop --release
 ```
 
@@ -134,17 +123,21 @@ print(result)  # {"message":"你好世界"}
 formatted = repair_json("{'a': 1}", indent=2)
 ```
 
-## What it repairs
+## What It Repairs
 
-- **Single quotes** → Double quotes
-- **Unquoted keys** → Quoted keys
-- **Python literals** → JSON equivalents (True→true, False→false, None→null)
-- **Trailing commas** → Removed
-- **Missing commas** → Added
-- **Extra commas** → Removed
-- **Unclosed brackets/braces** → Auto-closed
-- **Escape sequences** → Properly handled
-- **Unicode characters** → Preserved or escaped based on settings
+Automatically fixes common JSON formatting issues:
+
+| Issue | Fix |
+|-------|-----|
+| Single quotes | → Double quotes |
+| Unquoted keys | → Quoted keys |
+| Python literals (True/False/None) | → JSON (true/false/null) |
+| Trailing commas | Removed |
+| Missing commas | Added |
+| Extra commas | Removed |
+| Unclosed brackets/braces | Auto-closed |
+| Invalid escape sequences | Fixed |
+| Unicode characters | Preserved or escaped (configurable) |
 
 ## API Reference
 
@@ -211,115 +204,159 @@ Comprehensive comparison of fast_json_repair vs json_repair across 20 test cases
 | Test Case | fast_json_repair (ms) | json_repair (ms) | Speedup |
 |-----------|----------------------|------------------|---------|
 | **Invalid JSON (needs repair)** | | | |
-| Simple quotes (ascii=T) | 0.018 | 0.030 | 🚀 1.7x |
-| Simple quotes (ascii=F) | 0.018 | 0.029 | 🚀 1.6x |
-| Medium nested (ascii=T) | 0.064 | 0.178 | 🚀 2.8x |
-| Medium nested (ascii=F) | 0.062 | 0.184 | 🚀 3.0x |
-| Large array 1000 (ascii=T) | 1.093 | 2.154 | 🚀 2.0x |
-| Large array 1000 (ascii=F) | 1.051 | 2.160 | 🚀 2.1x |
-| Deep nesting 50 (ascii=T) | 0.139 | 0.372 | 🚀 2.7x |
-| Deep nesting 50 (ascii=F) | 0.133 | 0.368 | 🚀 2.8x |
-| Large object 500 (ascii=T) | 1.717 | 28.194 | 🚀 **16.4x** |
-| Large object 500 (ascii=F) | 1.702 | 28.570 | 🚀 **16.8x** |
-| Complex mixed (ascii=T) | 0.105 | 0.365 | 🚀 3.5x |
-| Complex mixed (ascii=F) | 0.102 | 0.366 | 🚀 3.6x |
-| Very large 5000 (ascii=T) | 103.896 | 509.603 | 🚀 **4.9x** |
-| Very large 5000 (ascii=F) | 102.053 | 506.772 | 🚀 **5.0x** |
-| Long strings 10K (ascii=T) | 0.568 | 3.399 | 🚀 **6.0x** |
-| Long strings 10K (ascii=F) | 0.576 | 3.430 | 🚀 **6.0x** |
+| Simple quotes (ascii=T) | 0.007 | 0.032 | 🚀 4.7x |
+| Simple quotes (ascii=F) | 0.006 | 0.037 | 🚀 5.7x |
+| Medium nested (ascii=T) | 0.020 | 0.192 | 🚀 9.6x |
+| Medium nested (ascii=F) | 0.019 | 0.197 | 🚀 10.5x |
+| Large array 1000 (ascii=T) | 0.246 | 2.273 | 🚀 9.3x |
+| Large array 1000 (ascii=F) | 0.237 | 2.162 | 🚀 9.1x |
+| Deep nesting 50 (ascii=T) | 0.055 | 0.410 | 🚀 7.5x |
+| Deep nesting 50 (ascii=F) | 0.050 | 0.420 | 🚀 8.4x |
+| Large object 500 (ascii=T) | 0.404 | 27.339 | 🚀 **67.7x** |
+| Large object 500 (ascii=F) | 0.408 | 26.436 | 🚀 **64.8x** |
+| Complex mixed (ascii=T) | 0.033 | 0.408 | 🚀 12.2x |
+| Complex mixed (ascii=F) | 0.035 | 0.401 | 🚀 11.4x |
+| Very large 5000 (ascii=T) | 29.531 | 580.959 | 🚀 **19.7x** |
+| Very large 5000 (ascii=F) | 28.526 | 581.489 | 🚀 **20.4x** |
+| Long strings 10K (ascii=T) | 0.040 | 4.403 | 🚀 **110.2x** |
+| Long strings 10K (ascii=F) | 0.040 | 4.360 | 🚀 **108.7x** |
 | **Valid JSON (fast path)** | | | |
-| Small ASCII (ascii=T) | 0.003 | 0.004 | 🚀 1.4x |
-| Small ASCII (ascii=F) | 0.002 | 0.005 | 🚀 2.8x |
-| Nested structure (ascii=T) | 0.006 | 0.008 | 🚀 1.3x |
-| Nested structure (ascii=F) | 0.003 | 0.010 | 🚀 3.1x |
-| Large array 1000 (ascii=T) | 0.747 | 0.887 | 🚀 1.2x |
-| Large array 1000 (ascii=F) | 0.431 | 0.938 | 🚀 2.2x |
-| Large object 500 (ascii=T) | 0.518 | 0.558 | 🚀 1.1x |
-| Large object 500 (ascii=F) | 0.277 | 0.555 | 🚀 2.0x |
+| Small ASCII (ascii=T) | 0.003 | 0.004 | 🚀 1.3x |
+| Small ASCII (ascii=F) | 0.002 | 0.005 | 🚀 2.9x |
+| Nested structure (ascii=T) | 0.007 | 0.008 | 🚀 1.2x |
+| Nested structure (ascii=F) | 0.003 | 0.008 | 🚀 2.4x |
+| Large array 1000 (ascii=T) | 0.799 | 0.907 | 🚀 1.1x |
+| Large array 1000 (ascii=F) | 0.421 | 0.903 | 🚀 2.1x |
+| Large object 500 (ascii=T) | 0.506 | 0.590 | 🚀 1.2x |
+| Large object 500 (ascii=F) | 0.281 | 0.571 | 🚀 2.0x |
 
-**Overall: 5.1x faster** across all test cases
+**Overall: 19.7x faster** across all test cases
 
 **Key Insights:**
 - 🚀 = fast_json_repair is faster (all test cases)
-- **Invalid JSON repair**: 2-17x faster
+- **Invalid JSON repair**: 5-110x faster
 - **Valid JSON with ensure_ascii=False**: 2-3x faster (uses orjson fast path)
-- **Valid JSON with ensure_ascii=True**: 1.1-1.4x faster
-- **Best performance gains**: Large objects (16x), long strings (6x), complex structures (5x)
+- **Valid JSON with ensure_ascii=True**: 1.1-1.3x faster
+- **Best performance gains**: Long strings (110x), large objects (68x), very large arrays (20x)
 
 ### Performance Advantages
 
-- **Large JSON documents**: 5-15x faster for documents with many keys/values
-- **Deeply nested structures**: 2-3x faster with consistent performance
-- **Documents with many errors**: Scales better with number of repairs needed
-- **Memory efficiency**: Lower memory footprint due to Rust's zero-cost abstractions
+- **Large JSON documents**: 10-70x faster for documents with many keys/values
+- **Long strings**: Up to 110x faster for documents with large string values
+- **Very large arrays**: 20x faster for arrays with thousands of elements
+- **Deeply nested structures**: 7-10x faster with consistent performance
+- **Memory efficiency**: Lower memory footprint due to Rust's zero-cost abstractions and optimized allocations
 
-Run `python benchmark.py` to test performance on your system.
-
-## Differences from original json_repair
-
-- Core repair logic implemented in Rust for performance
-- Uses orjson instead of standard json library
-- Numbers in unquoted values are parsed as numbers (not strings)
-- Focused on string repair only (no file operations in core library)
+Run `python benchmark.py` to test performance on your system. See [PERFORMANCE.md](PERFORMANCE.md) for detailed analysis.
 
 ## AWS Deployment
 
-This library works perfectly on AWS Linux systems. Pre-built wheels are available for:
-- **x86_64** (standard EC2 instances like t2, t3, m5, c5)
-- **ARM64/aarch64** (Graviton instances like t4g, m6g, c6g)
-
-### Quick Deploy to AWS
+Works seamlessly on AWS with pre-built wheels for all architectures:
+- **x86_64** - Standard EC2 instances (t2, t3, m5, c5, etc.)
+- **ARM64/aarch64** - Graviton instances (t4g, m6g, c6g, etc.)
 
 ```bash
-# Simply install from PyPI (works on all architectures)
+# Install on any AWS instance - pip auto-selects the correct wheel
 pip install fast-json-repair
-
-# The correct wheel for your architecture will be automatically selected:
-# - x86_64 instances: manylinux_2_17_x86_64 wheel
-# - ARM64/Graviton instances: manylinux_2_17_aarch64 wheel
 ```
 
-### Building Linux Wheels (Cross-compilation from macOS)
-
-```bash
-# Install build tools
-cargo install cargo-zigbuild
-brew install zig
-
-# Add Linux targets
-rustup target add x86_64-unknown-linux-gnu
-rustup target add aarch64-unknown-linux-gnu
-
-# Build Linux x86_64 wheel
-maturin build --release --target x86_64-unknown-linux-gnu --zig
-
-# Build Linux ARM64 wheel (for AWS Graviton)
-maturin build --release --target aarch64-unknown-linux-gnu --zig
-```
-
-### AWS Lambda Deployment
-
-Create a Lambda layer:
-```bash
-mkdir -p lambda-layer/python
-pip install -t lambda-layer/python/ target/wheels/fast_json_repair-*.whl orjson
-cd lambda-layer && zip -r fast_json_repair_layer.zip python
-```
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+For Lambda layers and cross-compilation, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Development
 
+### Quick Reference
+
+| Task | Command | VS Code Task |
+|------|---------|--------------|
+| **Setup** | `./setup.sh` | - |
+| **Build (debug)** | `maturin develop` | 🔧 Build: Development |
+| **Build (release)** | `maturin develop --release` | 🚀 Build: Development (Release) |
+| **Run tests** | `pytest tests/ -v` | 🧪 Test: Python (All) |
+| **Run benchmarks** | `python benchmark.py` | ⚡ Benchmark: Run Full Suite |
+| **Format code** | `cargo fmt && black . && isort .` | ✨ Format: All (Rust + Python) |
+| **Lint Rust** | `cargo clippy` | 🦀 Rust: Clippy |
+| **Lint Python** | `ruff check .` | 🐍 Python: Lint (Ruff) |
+| **Full check** | `maturin develop && pytest && python benchmark.py` | ✅ Full Check: Build + Test + Benchmark |
+
+### Quick Setup
+
 ```bash
-# Run tests
-python test_repair.py
+# Automated setup (recommended)
+./setup.sh
 
-# Build for current platform
+# Or manually with uv
+uv venv && source .venv/bin/activate
+uv sync
 maturin develop
-
-# Build release wheels
-maturin build --release
 ```
+
+### VS Code Integration
+
+This project includes a complete VS Code workspace configuration:
+
+**Getting Started:**
+1. Open the project folder in VS Code
+2. Install recommended extensions (you'll see a prompt)
+3. The Python interpreter will auto-detect `.venv`
+4. Press `Cmd+Shift+P` → "Tasks: Run Task" to see all available commands
+
+**Available Tasks:**
+- 🔧 **Build Tasks**: Debug build, release build, wheels, cross-platform builds
+- 🧪 **Test Tasks**: Run all tests, quick tests, coverage reports
+- ⚡ **Benchmark Tasks**: Full benchmarks, quick benchmarks, save results
+- 🦀 **Rust Tasks**: Check, clippy, format, clean
+- 🐍 **Python Tasks**: Format (black), sort imports (isort), lint (ruff)
+- 🚢 **Workflows**: Full check (build+test+benchmark), release prep, quality checks
+
+**Debugging:**
+- Press `F5` to debug Python tests
+- Set breakpoints in Python code
+- Use "Debug: Select and Start Debugging" for specific configs
+
+### Common Commands
+
+See the Quick Reference table above for the most common tasks. Additional commands:
+
+```bash
+# Code quality
+black .                # Format Python code
+isort .                # Sort Python imports
+ruff check .           # Lint Python code
+
+# Cross-platform builds (requires zig)
+maturin build --release --target x86_64-unknown-linux-gnu --zig
+maturin build --release --target aarch64-unknown-linux-gnu --zig
+maturin build --release --target universal2-apple-darwin
+```
+
+### Project Structure
+
+```
+fast_json_repair/
+├── src/
+│   └── lib.rs              # Rust implementation (core repair logic)
+├── python/
+│   └── fast_json_repair/
+│       └── __init__.py     # Python API wrapper
+├── tests/
+│   └── test_all.py         # Python test suite
+├── benchmark.py            # Performance benchmarks
+├── pyproject.toml          # Python package configuration
+├── Cargo.toml              # Rust package configuration
+└── .vscode/                # VS Code workspace settings (local)
+    ├── settings.json       # Python/Rust interpreter & formatting
+    ├── tasks.json          # Build/test/benchmark tasks
+    ├── launch.json         # Debug configurations
+    └── extensions.json     # Recommended extensions
+```
+
+### Typical Workflow
+
+1. **Make Changes** - Edit Rust (`src/`) or Python (`python/`) code
+2. **Rebuild** - `maturin develop` or VS Code task `🔧 Build: Development`
+3. **Test** - `pytest tests/ -v` or VS Code task `🧪 Test: Python (All)`
+4. **Benchmark** - `python benchmark.py` or VS Code task `⚡ Benchmark: Run Full Suite`
+5. **Release** - `maturin build --release` when ready to publish
 
 ## License
 

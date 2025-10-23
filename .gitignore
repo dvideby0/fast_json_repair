@@ -46,3 +46,9 @@ Cargo.lock
 # Project specific
 *.whl
 *.tar.gz
+benchmark_results_*.txt
+
+# Testing
+htmlcov/
+.ruff_cache/
+.mypy_cache/

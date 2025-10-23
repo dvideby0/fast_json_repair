@@ -5,7 +5,7 @@ import json as _json
 import orjson
 from fast_json_repair._fast_json_repair import _repair_json_rust
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 __all__ = ["repair_json", "loads"]
 
 

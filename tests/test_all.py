@@ -262,6 +262,86 @@ def test_numeric_strings():
         assert result == expected
 
 
+def test_missing_commas():
+    """Test adding missing commas between key-value pairs."""
+    result = repair_json('{"a": 1 "b": 2 "c": 3}', return_objects=True)
+    assert result == {"a": 1, "b": 2, "c": 3}
+    
+    # Array missing commas
+    result = repair_json('[1 2 3]', return_objects=True)
+    assert result == [1, 2, 3]
+
+
+def test_multiple_trailing_commas():
+    """Test removal of multiple consecutive commas."""
+    result = repair_json('{"a": 1,,,,"b": 2}', return_objects=True)
+    assert result == {"a": 1, "b": 2}
+    
+    result = repair_json('[1,,,2,,,3]', return_objects=True)
+    assert result == [1, 2, 3]
+
+
+def test_invalid_input_type():
+    """Test that non-string input raises TypeError."""
+    import pytest
+    
+    with pytest.raises(TypeError):
+        repair_json(123)
+    
+    with pytest.raises(TypeError):
+        repair_json(None)
+    
+    with pytest.raises(TypeError):
+        repair_json({"already": "dict"})
+    
+    with pytest.raises(TypeError):
+        repair_json([1, 2, 3])
+
+
+def test_special_numeric_values():
+    """Test various numeric edge cases."""
+    result = repair_json(
+        '{"zero": 0, "negative": -42, "float": 3.14159, "sci": 1.23e-10}',
+        return_objects=True
+    )
+    assert result["zero"] == 0
+    assert result["negative"] == -42
+    assert result["float"] == 3.14159
+    assert abs(result["sci"] - 1.23e-10) < 1e-15
+
+
+def test_completely_invalid_input():
+    """Test handling of completely invalid non-JSON input."""
+    # Should handle gracefully without crashing
+    result = repair_json("not json at all!")
+    assert result is not None
+    
+    result = repair_json("}{][ backwards")
+    assert result is not None
+
+
+def test_regression_key_order_preserved():
+    """
+    Regression test: Ensure keys preserve insertion order (not sorted alphabetically).
+    
+    This was a bug where keys were being sorted, changing insertion order.
+    Fixed in optimization update (removed unnecessary .sort_by_key()).
+    """
+    # Test with indentation (where sorting bug occurred)
+    input_json = '{"zebra": 1, "apple": 2, "middle": 3}'
+    result = repair_json(input_json, indent=2)
+    
+    # Extract key order from result
+    key_pattern = re.findall(r'"([^"]+)":', result)
+    assert key_pattern == ['zebra', 'apple', 'middle'], \
+        f"Keys should preserve insertion order, got: {key_pattern}"
+    
+    # Also test compact format
+    result_compact = repair_json(input_json)
+    key_pattern_compact = re.findall(r'"([^"]+)":', result_compact)
+    assert key_pattern_compact == ['zebra', 'apple', 'middle']
+
+
 # ============================================================================
 # MAIN TEST RUNNER
 # ============================================================================
@@ -299,6 +379,13 @@ def run_all_tests():
         test_large_array,
         test_malformed_escapes,
         test_numeric_strings,
+        # New tests
+        test_missing_commas,
+        test_multiple_trailing_commas,
+        test_invalid_input_type,
+        test_special_numeric_values,
+        test_completely_invalid_input,
+        test_regression_key_order_preserved,
     ]
     
     print("=" * 60)
